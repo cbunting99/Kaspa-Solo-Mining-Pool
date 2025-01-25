@@ -1,0 +1,42 @@
+server:
+  host: 0.0.0.0
+  tcpPort: 3333
+  wsPort: 3334
+pool:
+    name: "MySoloKaspaPool"
+    extraNonceSize: 4
+    maxExtraNonce: 4294967295
+kaspaNode:
+  host: 127.0.0.1
+  port: 16110
+  user: your_rpc_user
+  pass: your_rpc_password
+blockTimeTarget: 1
+difficulty:
+  adjustmentInterval: 5
+  targetTime: 5
+  initialDifficulty: 1
+  varianceTarget: 0.2
+job:
+  cleanJobs: true
+  jobTimeout: 60
+webUI:
+  port: 3000
+  secret: my_secret_key_change_me #Change this to a secure key
+  enableAuth: true
+  username: admin
+  password: password
+  rateLimitWindow: 60000
+  rateLimitMax: 100
+monitoring:
+    logLevel: 'info'
+    logFile: './pool.log'
+solo:
+  confirmationsNeeded: 10
+testnet:
+  genesisHash: "379515597d2289c42b674d56aa3f2e347419d85fbe8f82b21af5a7e13e8f3018"
+  genesisTimestamp: 1636527288
+  genesisVersion: 1
+  genesisBits: "2000ffff"
+  genesisParentHash: '0000000000000000000000000000000000000000000000000000000000000000'
+  genesisSubnetId: '00'

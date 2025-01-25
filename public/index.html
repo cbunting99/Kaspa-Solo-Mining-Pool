@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaspa Solo Pool</title>
+     <style>
+        body { font-family: sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .pool-info{margin-bottom: 20px;}
+    </style>
+</head>
+<body>
+    <h1>Kaspa Solo Mining Pool</h1>
+
+     <div class="pool-info">
+        <h2>Pool Information</h2>
+           <div id="pool-data">Loading data...</div>
+    </div>
+    
+    <h2>Active Miners</h2>
+    <table id="miners-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Shares</th>
+                 <th>Authenticated</th>
+                <th>Hashrate</th>
+            </tr>
+        </thead>
+        <tbody id="miners-body">
+            <!-- Data will be loaded here -->
+        </tbody>
+    </table>
+
+     <h2>Shares</h2>
+        <table id="shares-table">
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>Valid</th>
+             <th>User</th>
+             <th>Job ID</th>
+        </tr>
+    </thead>
+    <tbody id="shares-body">
+            <!-- Data will be loaded here -->
+    </tbody>
+    </table>
+    <script>
+       // Fetch the token from localStorage or session storage
+        const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+        let socket;
+        if (token){
+          socket = new WebSocket(`ws://${window.location.hostname}:${parseInt(window.location.port) + 1}`, [], {
+            headers: {
+             Authorization: `Bearer ${token}`
+           }
+        });
+        }else{
+             window.location.href = '/login'; // redirect to login
+           }
+
+           socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened');
+           });
+
+            socket.addEventListener('message', (event) => {
+             try {
+                const message = JSON.parse(event.data);
+                   if (message.type === 'pool') {
+                     let poolHTML = `
+                        <p><strong>Pool Name:</strong> ${message.data.poolName}</p>
+                        <p><strong>Server Address:</strong> ${message.data.serverHost}:${message.data.serverPort}</p>
+                        <p><strong>Web UI Port:</strong> ${message.data.webUI_Port}</p>
+                         <p><strong>Current difficulty:</strong> ${message.data.difficulty}</p>
+                           <p><strong>Blocks Found:</strong> ${message.data.blocksFound}</p>
+                    `;
+                     document.getElementById("pool-data").innerHTML = poolHTML;
+                  }
+                  if (message.type === 'miners') {
+                       const minersBody = document.getElementById('miners-body');
+                        minersBody.innerHTML= '';
+                        message.data.forEach(miner => {
+                            const row = minersBody.insertRow();
+                            row.insertCell().textContent = miner.user;
+                            row.insertCell().textContent = miner.shares;
+                            row.insertCell().textContent = miner.authenticated;
+                            row.insertCell().textContent = miner.hashrate;
+                        });
+                   }
+
+                   if (message.type === 'shares') {
+                       const sharesBody = document.getElementById('shares-body');
+                       sharesBody.innerHTML= '';
+                       message.data.forEach(share => {
+                            const row = sharesBody.insertRow();
+                           row.insertCell().textContent = new Date(share.timestamp).toLocaleString();
+                            row.insertCell().textContent = share.valid;
+                             row.insertCell().textContent = share.user;
+                             row.insertCell().textContent = share.jobId;
+                        });
+                    }
+
+             } catch (e) {
+                console.error("Error parsing websocket message",e);
+                }
+          });
+
+             socket.addEventListener('close', (event) => {
+               console.log('WebSocket connection closed');
+                window.location.href = '/login'; // redirect to login if socket is closed.
+              });
+
+                socket.addEventListener('error', (event) => {
+                    console.error('WebSocket error:', event);
+                });
+    </script>
+</body>
+</html>
