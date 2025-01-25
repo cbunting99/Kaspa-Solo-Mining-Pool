@@ -1,5 +1,5 @@
 
-# Kaspa Solo Mining Pool
+# Kaspa Solo Mining Pool (Not Finished + Missing Libraries)
 
 This is a feature-rich, commercially viable solo mining pool implementation for Kaspa, designed for stability, scalability, and ease of use. It enables individual miners to connect to the Kaspa network, solve blocks, and receive the full block reward directly.
 
